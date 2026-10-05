@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="SCION: Scene Composition with Instanced Neural Primitives — a compositional 3D scene representation that replaces independent Gaussians with a small vocabulary of reusable primitives and lightweight world-space instances.">
+  <meta name="keywords" content="SCION, Gaussian splatting, compositional scene representation, neural primitives, instancing, 3D compression, scene editing">
+  <title>SCION: Scene Composition with Instanced Neural Primitives</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,300..800;1,300..800&family=Source+Serif+4:ital,opsz,wght@0,8..60,300..700;1,8..60,300..700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23121212'/><circle cx='11' cy='12' r='4' fill='%23e77500'/><circle cx='21' cy='12' r='4' fill='%23e77500' opacity='.6'/><circle cx='16' cy='21' r='4' fill='%23e77500' opacity='.35'/></svg>">
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+</head>
+<body>
+
+<section class="hero is-fullheight has-video-background" id="overview">
+  <video class="hero-bg-video" autoplay loop playsinline muted preload="auto">
+    <source src="media/clips/hero.mp4" type="video/mp4">
+  </video>
+  <div class="hero-video-overlay"></div>
+
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">
+            SCION<span class="publication-subtitle">Scene Composition with Instanced Neural Primitives</span>
+          </h1>
+
+          <div class="publication-authors">
+            <span class="author-block">William Koch</span>,
+            <span class="author-block">Amogh Joshi</span>,
+            <span class="author-block">Cyrus Vachha</span>,
+            <span class="author-block">Cheng Zheng</span>,
+            <span class="author-block">Felix Heide</span>
+          </div>
+          <div class="publication-affiliations">Princeton University</div>
+          <div class="publication-venue">NeurIPS 2026</div>
+
+          <div class="publication-links">
+            <span class="link-block">
+              <a href="https://arxiv.org/abs/2610.02322" class="external-link button is-normal is-rounded is-outlined is-light">
+                <span class="icon"><i class="ai ai-arxiv"></i></span><span>arXiv</span>
+              </a>
+            </span>
+            <span class="link-block">
+              <a href="media/SCION_supplementary.pdf" class="external-link button is-normal is-rounded is-outlined is-light">
+                <span class="icon"><i class="fas fa-file-pdf"></i></span><span>Supplementary</span>
+              </a>
+            </span>
+            <span class="link-block">
+              <a href="https://github.com/princeton-computational-imaging/SCION" class="external-link button is-normal is-rounded is-outlined is-light">
+                <span class="icon"><i class="fab fa-github"></i></span><span>Code</span>
+              </a>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-foot has-text-centered" style="padding-bottom:2rem;">
+    <span class="scroll-indicator"><i class="fas fa-chevron-down fa-2x"></i></span>
+  </div>
+</section>
+
+<section class="section alt" id="abstract">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <span class="section-kicker">Abstract</span>
+        <h2 class="title is-3">Scenes are naturally repetitive.</h2>
+        <div class="content has-text-justified reveal">
+          <p class="lead">
+            Real-world scenes are compositional: bricks, blades of grass, pebbles, and tree leaves
+            recur across human-built and natural environments. Existing neural scene representations
+            model these elements independently. Most 3D Gaussian Splatting and follow-up abstraction
+            and compression methods treat each element as unique, fitting millions of independent
+            Gaussians per scene. Prior methods like Splat and Replace fit template objects, but they
+            require mostly manual selection of repeated elements. As a result, these representations
+            store redundant parameters and provide weak manipulation handles for downstream tasks.
+          </p>
+          <p>
+            We introduce SCION, a hierarchical compositional scene representation that replaces
+            independent Gaussians with a compact vocabulary of reusable primitives and lightweight
+            world-space instances that place transformed copies throughout the scene. We fit this
+            representation to multi-view captures via a joint optimization over discrete and
+            continuous scene parameters, combining two-level densification over splats and instances
+            with an adversarial loss that preserves detail across shared primitives. The recovered
+            structure yields a compact, controllable representation while maintaining high quality
+            even at 1.2&nbsp;MB. SCION achieves rate-distortion favorable to existing Gaussian
+            compression methods, and it enables instance-level scene editing and animation without
+            retraining. Our results show that neural scene representations need not memorize scenes
+            as independent primitives; they can discover reusable parts.
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section class="section" id="method">
+  <div class="container is-max-desktop">
+    <div class="has-text-centered">
+      <span class="section-kicker">Method</span>
+      <h2 class="title is-3">SCION optimizes two things: a vocabulary of primitives, and where to place their instances.</h2>
+    </div>
+
+    <div class="content has-text-justified reveal">
+      <p>
+        SCION represents a scene as a vocabulary
+        <em>C</em>&nbsp;=&nbsp;{<em>c</em><sub>k</sub>} of <em>K</em> reusable primitives and a set of
+        <em>N</em> instances. Each primitive is a bundle of 3D Gaussians in a local frame. Each
+        instance is a world-space placement: position, rotation, a scalar scale, an opacity
+        bias, and one integer selecting its primitive. The representation therefore scales primarily
+        with the number of instances (which are cheap) rather than with the number of splats.
+      </p>
+    </div>
+
+    <div class="figure reveal">
+      <video class="figure-anim" data-lazy playsinline muted preload="none"
+             poster="media/figures/fig1_overview.jpg"
+             aria-label="Overview of SCION: instances, vocabulary, primitive, assembly, render.">
+        <source src="media/clips/fig1_overview.mp4" type="video/mp4">
+      </video>
+      <p class="figure-caption">
+        <b>Overview.</b> We initialise instances from a sparse COLMAP point cloud, group them into
+        reusable primitives with frozen DINOv3 features, assemble the selected local splats for
+        rendering, and update the representation through image losses, projected adversarial
+        supervision, and active densification.
+      </p>
+    </div>
+
+    <div class="content has-text-justified">
+      <p>
+        Recovering this factorization is the hard part. Each primitive receives supervision through
+        many placed copies, and averaging reconstruction losses over those copies drives templates
+        toward blurry means &mdash; erasing exactly the high-frequency detail that makes foliage read
+        as foliage. We address this with three ingredients: <b>primitive-local splat birth and
+        relocation</b> (an MH birth rule scoped to one template at a time, so births respond to where
+        a template is under-fit relative to its own rows), <b>world-space instance density control</b>
+        (pruning, cloning and subdivision), and a <b>projected adversarial loss</b> on the splat-pass
+        render that preserves per-instance sharpness under sharing.
+      </p>
+    </div>
+
+    <div class="figure reveal">
+      <video data-lazy loop playsinline muted controls preload="none" poster="media/figures/fig2_assembly.png">
+        <source src="media/clips/assembly.mp4" type="video/mp4">
+      </video>
+      <p class="figure-caption">
+        <b>Building a scene, one group of primitives at a time.</b> Primitives are grouped by what
+        they depict (bushes, grass, walls, table, paving, tree) and every instance is placed whole,
+        with the on-disk size accumulating from 0&nbsp;MB to 1.45&nbsp;MB. The finished scene is then
+        shown as per-pixel primitive assignment, reuse frequency and depth.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="section alt" id="editing">
+  <div class="container is-max-desktop">
+    <div class="has-text-centered">
+      <span class="section-kicker">Downstream</span>
+      <h2 class="title is-3">Primitives simplify scene editing...</h2>
+    </div>
+    <div class="content has-text-justified reveal">
+      <p>
+        The learned representation exposes
+        controls that a flat set of splats would not have. For example, if we want to expand a grass
+        field, we can simply re-use reconstructed primitives - simplifying editing and preserving appearance. 
+        To avoid repetition, rotation, scale and opacity are of new/changed instances are resampled from the 
+        target primitive's empirical distribution. Nothing is retrained.
+      </p>
+    </div>
+    <div class="figure reveal">
+      <video data-lazy loop playsinline muted controls preload="none">
+        <source src="media/clips/editor.mp4" type="video/mp4">
+      </video>
+      <p class="figure-caption">
+        <b>Interactive editor.</b> A brush stroke selects instances; a text query retrieves a target
+        primitive; the selection is reassigned. Every instance of the affected primitive updates at
+        once.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="animation">
+  <div class="container is-max-desktop">
+    <div class="has-text-centered">
+      <span class="section-kicker">Downstream</span>
+      <h2 class="title is-3">... as well as animation.</h2>
+    </div>
+    <div class="content has-text-justified reveal">
+      <p>
+        When animating a standard 3DGS scene, each Gaussian is indepdent, so scene elements represented by
+        many splats cannot move coherently: as such, splats belonging to, e.g. a single flower, receive
+        inconsistent local motion and the shape breaks. In SCION, motion can be applied through the complete
+        instance, so all splats in a reused primitive share one displacement and elements retain their shape.
+      </p>
+    </div>
+
+    <div class="figure reveal">
+      <video data-lazy loop playsinline muted controls preload="none">
+        <source src="media/clips/animation.mp4" type="video/mp4">
+      </video>
+      <p class="figure-caption">
+        <b>Same wind, two representations.</b> Left: per-splat transformation of a flat 3DGS field.
+        Right: SCION, driving the same field through instance transforms.
+      </p>
+    </div>
+
+    <div class="figure reveal">
+      <img src="media/figures/fig5_animation.jpg" width="1985" height="385" alt="Flow maps comparing 3DGS and SCION under the same wind animation.">
+      <p class="figure-caption">
+        <b>Flow maps</b> for the same wind animation applied to (a) 3DGS and (b) SCION. Per-splat
+        transformations produce incoherent local motion; SCION moves repeated scene elements
+        coherently through instance transforms.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="section alt" id="decomposition">
+  <div class="container is-max-desktop">
+    <div class="has-text-centered">
+      <span class="section-kicker">More results</span>
+      <h2 class="title is-3">Building LEGO.</h2>
+    </div>
+
+    <div class="figure feature-figure reveal">
+      <video data-lazy loop playsinline muted controls preload="none">
+        <source src="media/clips/lego_decompose.mp4" type="video/mp4">
+      </video>
+      <p class="figure-caption">
+        <b>Decomposing LEGO.</b> A synthetic scene pulled apart into its recovered
+        primitives, then reassembled. The scene is rebuilt entirely from repeated copies of
+        a handful of learned parts.
+      </p>
+    </div>
+    <div class="figure feature-figure reveal" style="margin-top:2.6rem;">
+      <video data-lazy loop playsinline muted controls preload="none">
+        <source src="media/clips/attributes.mp4" type="video/mp4">
+      </video>
+      <p class="figure-caption"><b>Assignment, frequency and depth</b> across scenes: which
+      primitive each region selects, and how often it is reused.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="citation">
+  <div class="container is-max-desktop content">
+    <div class="bib-head">
+      <h2 class="title is-3" style="margin:0;">BibTeX</h2>
+      <button id="copy-bib">Copy</button>
+    </div>
+    <pre><code id="bibtex">@inproceedings{scion2026koch,
+  title     = {SCION: Scene Composition with Instanced Neural Primitives},
+  author    = {Koch, William and Joshi, Amogh and Vachha, Cyrus and Zheng, Cheng and Heide, Felix},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2026}
+}</code></pre>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content has-text-centered">
+          <p>
+            Website template adapted from the
+            <a href="https://nerfies.github.io" target="_blank" rel="noopener">Nerfies project page</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="./static/js/index.js"></script>
+</body>
+</html>
