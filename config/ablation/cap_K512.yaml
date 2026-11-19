@@ -1,0 +1,7 @@
+# @package _global_
+# Capacity sweep: K=512, S_init=4.
+method:
+  model:
+    num_candidates: 512
+    max_candidates: 512
+    initial_splats_per_candidate: 4

@@ -1,0 +1,6 @@
+# @package _global_
+# Initial instance->candidate assignment: k-means on point-cloud RGB.
+# The full-method control is the plain run (no ablation).
+method:
+  model:
+    init_assignment_mode: color

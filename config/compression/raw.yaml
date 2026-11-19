@@ -1,0 +1,3 @@
+# Compression level `raw`: fp32 learned parameters only (no optimizer
+# state, no frozen DINO / LPIPS / discriminator weights).
+level: raw

@@ -1,0 +1,12 @@
+model:
+  # Shared timing (paper-aligned: refine every 100 steps over 500..25000)
+  splat_refine_start: 500
+  splat_refine_every: 100
+  splat_refine_stop: 25000
+  # Mass-preserving relocation threshold (sigmoid-opacity): splats below it
+  # are relocated, cutting the long tail of barely-alive splats that eat
+  # memory without contributing (class default: 0.05).
+  splat_min_opacity: 0.01
+  # MH birth proposal params (the rest live on CodebookModelConfig as
+  # mh_splat_*; only the importance acceptance centre is exposed here).
+  splat_birth_accept_threshold: 0.5

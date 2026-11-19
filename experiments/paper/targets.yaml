@@ -1,0 +1,264 @@
+# Paper reproduction registry: which training jobs back which paper item.
+#
+# A job is keyed by (variant, ablation, dataset, scene, seed, tag) and its
+# record lives at evals/runs/<variant>[_abl_<ablation>][_<tag>]/<dataset>/
+# <scene>/seed<seed>/run.json (evals/RUN_SCHEMA.md). A target is a set of
+# jobs plus a renderer (or, for figures, a generator command), named after
+# the paper item. Loader: experiments/paper/targets.py.
+#
+# `jobs:` entries expand as variants x ablations x datasets x scenes x seeds.
+# Omitted fields mean: every variant, ablation null (the full method), every
+# scene of the dataset, every seed. `{target: X}` reuses all jobs of target X.
+# A job shared by several targets is one job (same key -> same run.json).
+# `tag` + `env` mark environment-only arms (see `compute`).
+#
+# Every job carries the Hydra overrides
+#   method=codebook variant=<v> dataset=<d> scene=<s> machine.seed=<seed>
+#   [ablation=<a>] [datasets.<d>.overrides.<v>...]
+# Per-dataset / per-variant rules (Synthetic K, ours_small's 0.4 x sparse-point
+# instance count, splits, downscale) live in config/, not here.
+
+seeds: 3
+
+variants:                 # name -> LaTeX row label (paper macros.tex)
+  ours_small: \ourssmall
+  ours_large: \ourslarge
+
+datasets:                 # order = column order of the main-results table
+  mipnerf360:
+    label: MipNeRF360
+    scenes: [bicycle, bonsai, counter, flowers, garden, kitchen, room, stump, treehill]
+  tandt:
+    label: Tanks \& Temples
+    scenes: [train, truck]
+  deepblending:
+    label: Deep Blending
+    scenes: [drjohnson, playroom]
+  synthetic:
+    label: Synthetic-NeRF
+    scenes: [chair, drums, ficus, hotdog, lego, materials, mic, ship]
+  campus:                 # ID/OOD captures (README); test groups from each scene's split.json
+    label: Campus
+    scenes: [mather_sundial, mccosh_walkway]
+
+targets:
+
+  # ---------------------------------------------------------------- tables
+  # Layouts: experiments/paper/LAYOUTS.md. Headline level = --level
+  # (default quantized); headline tables add a codec row (\wparam{} in the paper).
+
+  main_results:
+    paper: tab:main_results (table_1), per-scene tables 1a-1d, tab:levels (table_1e)
+    renderer: run_main_results
+    jobs:
+      - {datasets: [mipnerf360, tandt, deepblending, synthetic]}
+    # Baseline rows (evals/baselines/baselines.yaml keys), one list per \midrule group.
+    baselines:
+      - [3DGS, MCMC-3DGS]
+      - [Scaffold-GS, Compact3DGS, Compressed3DGS, ContextGS (low-rate), LightGaussian,
+         CompGS (low-rate), SOGS, HAC++ (low-rate), Nexels, BBSplat]
+    # Baseline rows of the per-scene tables (a row with no per-scene number is dropped).
+    per_scene_baselines: [3DGS, MCMC-3DGS]
+
+  matched_budget:
+    paper: tab:matched_budget (table_6)
+    renderer: run_matched_budget
+    jobs:
+      - {variants: [ours_small], datasets: [mipnerf360]}
+    baselines: [ContextGS (matched rerun), HAC++ (matched rerun), OMG (matched rerun)]
+
+  component_ablation:
+    paper: tab:component_ablation (table_2)
+    renderer: run_component_ablation
+    jobs:
+      - {ablations: [a, b, c, null], datasets: [mipnerf360], scenes: [garden]}
+    rows:                 # cumulative a -> b -> c -> full
+      - {ablation: a, label: Splat DC only}
+      - {ablation: b, label: $+$ instance DC}
+      - {ablation: c, label: $+$ LPIPS}
+      - {ablation: null, label: Full ($+$ adv)}
+
+  capacity:
+    paper: tab:capacity_ablation (table_3) + fig:rd (figures/pareto_capacity.pdf, 2x3, one row per sweep)
+    renderer: run_capacity_sweep
+    jobs:
+      - variants: [ours_small]
+        ablations: [cap_K64, cap_K128, cap_K256, cap_K512, cap_K1024, cap_S2, cap_S8]
+        datasets: [mipnerf360]
+        scenes: [garden]
+    sweeps:               # value -> ablation; K=256/S=4 (cap_K256) is the shared, bolded default
+      - label: $\ncands$
+        short: K          # point label in the figure
+        default: 256
+        arms: {64: cap_K64, 128: cap_K128, 256: cap_K256, 512: cap_K512, 1024: cap_K1024}
+      - label: $\nsplatsinit$
+        short: S
+        default: 4
+        arms: {2: cap_S2, 4: cap_K256, 8: cap_S8}
+
+  init_ablation:
+    paper: tab:init (table_init_ablation)
+    renderer: run_appendix_ablations
+    output: table_init_ablation.tex
+    jobs:
+      - variants: [ours_small]
+        ablations: [null, init_rgb_pos, init_rgb, init_random]
+        datasets: [mipnerf360]
+        scenes: [garden]
+    columns: [psnr, ssim, lpips, mb, active_candidates, effective_candidates,
+              instances_per_candidate, num_instances]
+    rows:
+      - {ablation: null, label: DINO (default)}
+      - {ablation: init_rgb_pos, label: Position $+$ RGB}
+      - {ablation: init_rgb, label: RGB}
+      - {ablation: init_random, label: Random}
+
+  operator_ablation:
+    paper: tab:operators (table_operator_ablation)
+    renderer: run_appendix_ablations
+    output: table_operator_ablation.tex
+    jobs:
+      - variants: [ours_small]
+        ablations: [null, no_splat_dc, no_inst_dc, clone_only, subdiv_only]
+        datasets: [mipnerf360]
+        scenes: [garden]
+    columns: [psnr, ssim, lpips, mb, num_instances, num_splats]
+    rows:
+      - {ablation: null, label: Full}
+      - {ablation: no_splat_dc, label: No splat DC}
+      - {ablation: no_inst_dc, label: No instance DC}
+      - {ablation: clone_only, label: Clone only}
+      - {ablation: subdiv_only, label: Subdivision only}
+
+  compactness_ablation:
+    paper: tab:compactness (table_compactness_ablation)
+    renderer: run_appendix_ablations
+    output: table_compactness_ablation.tex
+    jobs:
+      - variants: [ours_small]
+        ablations: [compact_off, null, compact_1e-3, compact_1e-2]
+        datasets: [mipnerf360]
+        scenes: [garden]
+    # Fixed levels (not --level), so the two column groups never coincide.
+    row_header: $\lambda_c$
+    highlight: true
+    columns: ["quantized:psnr", "quantized:ssim", "quantized:lpips", "quantized:mb",
+              "codec:psnr", "codec:ssim", "codec:lpips", "codec:mb"]
+    rows:                 # lambda_c ascending; the default is 2e-4
+      - {ablation: compact_off, label: '$0$'}
+      - {ablation: null, label: '$2\times10^{-4}$'}
+      - {ablation: compact_1e-3, label: '$10^{-3}$'}
+      - {ablation: compact_1e-2, label: '$10^{-2}$'}
+
+  ood:
+    paper: tab:ood (table_ood)
+    renderer: run_ood
+    jobs:
+      - {variants: [ours_small], datasets: [campus]}
+    level: codec          # fixed, not --level
+    scene_labels: {mather_sundial: '\texttt{mather}', mccosh_walkway: '\texttt{mccosh}'}
+    groups: {id: ID, sideways: Sideways, opposite: Opposite}   # split.json test groups -> header
+    # Per-scene, per-group author reruns (baselines.yaml), listed above our row.
+    baselines: [OMG (campus rerun), HAC++ (campus rerun), ContextGS (campus rerun)]
+
+  compute:
+    paper: tab:compute (CUDA vs PyTorch assemble_fused)
+    renderer: run_compute
+    jobs:
+      - variants: [ours_small]
+        datasets: [mipnerf360]
+        scenes: [garden]
+        tag: cuda
+        env: {SCION_BACKEND_assemble_fused: cuda, SCION_BACKEND_assemble_fused_bwd: cuda}
+      - variants: [ours_small]
+        datasets: [mipnerf360]
+        scenes: [garden]
+        tag: python
+        env: {SCION_BACKEND_assemble_fused: python, SCION_BACKEND_assemble_fused_bwd: python}
+    rows:
+      - {tag: python, label: PyTorch}
+      - {tag: cuda, label: CUDA}
+
+  paper_numbers:
+    paper: inline numbers -> \newcommand in tables/numbers.tex (macros in run_paper_numbers.py)
+    renderer: run_paper_numbers
+    jobs:
+      - {target: main_results}
+      - {target: component_ablation}
+      - {target: compute}
+
+  # --------------------------------------------------------------- figures
+  # Figure targets name the jobs whose artifacts (checkpoints/, eval_views/)
+  # they read and the generator to run. `render` prints them; it never runs
+  # a generator (renderers read run.json only). Final composites stay manual.
+  qual_compression:
+    paper: fig:compression_eval (figures/qualitative_compression_eval.pdf)
+    jobs:
+      - {variants: [ours_small], datasets: [mipnerf360], scenes: [garden, bicycle], seeds: [0]}
+    command: >-
+      python scripts/supp_qualitative.py --scion <runs-root> --baselines <baseline runs>
+      --scenes garden bicycle --pin garden:0:165,257,107,176 --pin bicycle:21:26,19,197,312
+      --out figures/qualitative_compression_eval.pdf
+    manual: >-
+      The baseline renders come from the matched-rate reruns (not shipped). The two views
+      and crops are pinned to those of the submission figure.
+
+  ablation_renders:
+    paper: fig:component_ablation_renders (figures/04_ablation_figure.pdf)
+    jobs:
+      - {variants: [ours_large], ablations: [a, b, c, null], datasets: [mipnerf360], scenes: [garden], seeds: [0]}
+    command: >-
+      python scripts/component_ablation_figure.py --runs <runs-root>
+      --out figures/04_ablation_figure.pdf
+    manual: >-
+      None. The view (median full-model PSNR) and the two crops (most GT gradient
+      energy) are chosen by rule.
+
+  supp_qualitative:
+    paper: fig:supp_qualitative (figures/supp_qualitative.pdf)
+    jobs:
+      - {datasets: [mipnerf360, tandt, deepblending, synthetic], seeds: [0]}
+    command: >-
+      python scripts/supp_qualitative.py --scion <runs-root> --baselines <baseline runs>
+      --out figures/supp_qualitative.pdf
+    manual: >-
+      The baseline renders come from the matched-rate reruns (not shipped). The view
+      (median SCION PSNR) and the crop (most GT gradient energy) are chosen by rule.
+
+  primitives:
+    paper: learned primitive renders (fig:process panel (a), primitives gallery)
+    jobs:
+      - {variants: [ours_large], datasets: [mipnerf360], scenes: [garden], seeds: [0]}
+    command: >-
+      python scripts/render_candidates_grid.py
+      --run-dir evals/runs/ours_large/mipnerf360/garden/seed0
+      --output figures/primitives_garden.png
+    manual: The primitives shown in the paper are selected by hand.
+
+  figure1_panels:
+    paper: fig:overview (figures/01_method_figure.pdf) and fig:process (figures/Fig2_final.pdf) insets
+    jobs:
+      - {variants: [ours_large], datasets: [mipnerf360], scenes: [garden], seeds: [0]}
+    command: >-
+      python scripts/build_figure1_panels.py
+      --run-dir evals/runs/ours_large/mipnerf360/garden/seed0
+      --eval-index 0 --output figures/figure1_panels
+    manual: >-
+      Panels are assembled by hand; the per-primitive instance counts printed in
+      fig:process come from the panels' metadata.json (candidate usage counts).
+
+  animation:
+    paper: fig:animation_demo (figures/06_animation.pdf)
+    jobs:
+      - {variants: [ours_large], datasets: [mipnerf360], scenes: [flowers], seeds: [0]}
+    command: >-
+      python scripts/animate_codebook.py
+      --run-dir evals/runs/ours_large/mipnerf360/flowers/seed0
+      --camera-path-filename evals/camera_paths/flowers.json
+      --groups grass,leaves,flower --static-groups sky,dirt,wood
+      --label-thresholds grass=0.08,leaves=0.10,flower=0.08 --anim-config-mode default
+      --duration 6.0 --fps 10 --output-path renders/flowers_wind.mp4
+      --save-motion-maps figures/animation_flow
+    manual: >-
+      The SCION flow maps come from --save-motion-maps; the 3DGS panel has no release
+      generator. Insets and layout are manual.

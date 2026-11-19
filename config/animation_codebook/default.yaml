@@ -1,0 +1,30 @@
+# Fallback animation settings for labels without a dedicated YAML, or for
+# --anim-config-mode default. Keep this visibly animated because it may be
+# shared by all text labels during debugging.
+
+bend_axis: world_z                   # instance_local | world_z — "world_z"
+                                     # keeps the rotation axis horizontal so
+                                     # motion is lateral along the wind.
+pivot_mode: base                     # base | center — "base" puts the pivot
+                                     # at the cluster's lowest splat (Z-min)
+                                     # so splats sway outward/inward rather
+                                     # than scissor above/below the centroid.
+pivot_down_offset: 0.1              # Fixed world-Z pivot drop for every
+                                     # animated instance. Try 0.05 if subtle.
+per_splat_flutter: true              # Adds tip-weighted high-frequency detail;
+                                     # important for compact grass/leaf splats.
+size_impact_alpha: 0.0               # 0 = no size scaling. Nonzero values make
+                                     # larger splats move more and can suppress
+                                     # fine grass/leaf splats.
+size_impact_min: 0.3
+size_impact_max: 3.0
+animation_config:
+  wind_direction: [1.0, 0.0]
+  wind_speed: 1.0
+  wind_strength: 16.0                 # Main bend amplitude in degrees.
+  sway_frequency: 0.5
+  phase_fbm_scale: 50.0              # XY scale into base phase FBM (cf. animate.py).
+  turbulence_scale: 2.0            # XY scale into turbulence FBM inside sin(...).
+  flutter_amplitude: 0.0
+  flutter_frequency_factor: 3.0
+  freq_jitter: 0.15

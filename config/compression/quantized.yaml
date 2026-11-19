@@ -1,0 +1,3 @@
+# Compression level `quantized`: SCION's native fp16 geometry + uint8
+# colour/opacity, see scion/compression/quantize.py. No external code.
+level: quantized

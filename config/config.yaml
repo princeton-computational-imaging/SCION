@@ -1,0 +1,44 @@
+defaults:
+  - _self_
+  - method: codebook
+  - discriminator: default
+  - compression: codec  # raw | quantized | codec; every level up to this one is evaluated
+  - dataset: null      # opt-in per-dataset overrides (mipnerf360 / tandt / synthetic / deepblending)
+  - variant: null      # opt-in capacity preset (ours_small / ours_large) layered onto method=codebook
+  # Per (dataset, variant) rules, e.g. Synthetic K (config/dataset_variant/); absent = none.
+  - optional dataset_variant: ${dataset}_${variant}
+  - ablation: null     # opt-in ablation overrides (config/ablation/<id>.yaml) layered last
+
+# Default scene. Override with `scene=<name>` on the CLI; the scene key is
+# interpolated into `data`, `dino_features_path`, and `dino_positions_path`.
+scene: flowers
+
+data: data/${scene}
+
+# COLMAP scene train/eval split + downscale (scion.data.load_colmap).
+# The paper datasets pin these in config/dataset/*.yaml (every-8th holdout,
+# fixed images_N per scene). Without a dataset group: fraction-0.9 split and
+# auto-downscale (downscale_factor=null picks the largest images_N whose max
+# side <= 1600 px). Synthetic Blender scenes ship a fixed train/test split
+# and ignore these keys.
+dataparser:
+  eval_mode: fraction          # fraction | interval | all | filename | split
+  train_split_fraction: 0.9
+  eval_interval: 8
+  downscale_factor: null       # null = auto (largest images_* with max side <= 1600)
+
+trainer:
+  max_num_iterations: 30000
+  log_every: 100               # progress line on stdout (step, loss, PSNR, Gaussians, it/s)
+  steps_per_save: 2000
+  steps_per_eval_all_images: 1000
+  # Metrics/visualization backend. Local-only by default; nothing leaves
+  # the machine. Opt in to Weights & Biases with trainer.vis=wandb (or
+  # tensorboard+wandb; vis=none logs to stdout only). Add "viewer"
+  # (vis=tensorboard+viewer) for the live browser viewer: pip install -e '.[viewer]'.
+  vis: tensorboard
+  # Resume from a checkpoint written by this trainer (<run>/checkpoints/step-*.ckpt).
+  load_checkpoint: null
+
+machine:
+  seed: 42

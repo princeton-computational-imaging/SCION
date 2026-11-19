@@ -1,0 +1,16 @@
+bend_axis: world_z
+pivot_mode: center
+per_splat_flutter: true
+size_impact_alpha: 0.8
+size_impact_min: 0.5
+size_impact_max: 2.0
+animation_config:
+  wind_direction: [1.0, 0.0]
+  wind_speed: 0.35
+  wind_strength: 3.0
+  sway_frequency: 0.5
+  phase_fbm_scale: 0.2
+  turbulence_scale: 0.5
+  flutter_amplitude: 1.8
+  flutter_frequency_factor: 3.0
+  freq_jitter: 0.15

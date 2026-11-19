@@ -1,0 +1,123 @@
+{
+  "schema_version": 2,
+  "status": "DONE",
+  "error": null,
+  "job": {
+    "variant": "ours_small",
+    "ablation": null,
+    "dataset": "mipnerf360",
+    "scene": "garden",
+    "seed": 0,
+    "tag": null
+  },
+  "slot": "ours_small",
+  "overrides": [
+    "method=codebook",
+    "variant=ours_small",
+    "dataset=mipnerf360",
+    "scene=garden",
+    "machine.seed=0"
+  ],
+  "config_sha256": "3f1c9a0e5b7d2c4f6a8e0b1d3c5f7a9e1b3d5f7a9c1e3b5d7f9a1c3e5b7d9f1a",
+  "git_sha": "37eb2cf000000000000000000000000000000000",
+  "gpu": "NVIDIA GeForce RTX 5090",
+  "backend_tiers": {
+    "assemble_fused": "cuda",
+    "assemble_fused_bwd": "cuda"
+  },
+  "versions": {
+    "python": "3.9.25",
+    "torch": "2.8.0+cu128",
+    "cuda": "12.8",
+    "gsplat": "1.5.3",
+    "scion": "0.2.0a0",
+    "constriction": "0.4.1",
+    "scikit_learn": "1.6.1"
+  },
+  "started_at": "2026-10-20T12:00:00Z",
+  "ended_at": "2026-10-20T12:21:40Z",
+  "train_time_s": 1066.0,
+  "peak_vram_bytes": 15032385536,
+  "split": {
+    "eval_mode": "interval",
+    "eval_interval": 8,
+    "train_split_fraction": null,
+    "downscale_factor": 4,
+    "n_train": 161,
+    "n_eval": 24,
+    "eval_images_sha256": "9b2e4d6f8a0c1e3b5d7f9a1c3e5b7d9f1a3c5e7b9d1f3a5c7e9b1d3f5a7c9e1b",
+    "data_sha256": "4c1a7e9b3d5f7a9c1e3b5d7f9a1c3e5b7d9f1a3c5e7b9d1f3a5c7e9b1d3f5a7c"
+  },
+  "n_gaussians": 1738894,
+  "model_stats": {
+    "num_candidates": 128,
+    "active_candidates": 128,
+    "num_instances": 55506,
+    "mean_splats_per_candidate": 31.3,
+    "effective_candidates": 115.84,
+    "instances_per_candidate": 433.6,
+    "num_splats": 4006
+  },
+  "compression_level": "codec",
+  "metrics": {
+    "raw": {
+      "psnr": 21.862,
+      "ssim": 0.5532,
+      "lpips": 0.3674,
+      "size_bytes": 2625811,
+      "bpg": 12.0804,
+      "fps": 1.01,
+      "n_gaussians": 1738894
+    },
+    "quantized": {
+      "psnr": 21.848,
+      "ssim": 0.5521,
+      "lpips": 0.3681,
+      "size_bytes": 1500517,
+      "bpg": 6.9033,
+      "fps": 1.03,
+      "n_gaussians": 1738894
+    },
+    "codec": {
+      "psnr": 21.801,
+      "ssim": 0.5498,
+      "lpips": 0.3702,
+      "size_bytes": 582853,
+      "bpg": 2.6815,
+      "fps": 1.02,
+      "n_gaussians": 1738894
+    }
+  },
+  "codec": {
+    "options": {
+      "M": 3,
+      "B": 256,
+      "min_rows_for_svq": 64,
+      "pos_bits": 16,
+      "seed": 0,
+      "lzma_wrap": true,
+      "position_format": "tmc13",
+      "tmc13_quant_step": 0.001,
+      "svq_instance_attrs": true,
+      "instance_svq_M": 4,
+      "instance_svq_B": 256
+    },
+    "position_format_used": "tmc13",
+    "tmc13_version": "release-v23.0-rc2 a3d15c5"
+  },
+  "artifacts": {
+    "checkpoints": {
+      "raw": "checkpoints/raw.ckpt",
+      "quantized": "checkpoints/quantized.ckpt",
+      "codec": "codec.omg"
+    },
+    "eval_views": {
+      "raw": "eval_views/raw",
+      "quantized": "eval_views/quantized",
+      "codec": "eval_views/codec"
+    },
+    "templates": "candidates",
+    "train_log": "train.log"
+  },
+  "median_step_s": 0.031
+}

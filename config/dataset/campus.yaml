@@ -1,0 +1,8 @@
+# @package _global_
+# SCION campus captures (ID/OOD): mather_sundial, mccosh_walkway.
+trainer:
+  max_num_iterations: 30000
+
+dataparser:
+  eval_mode: split            # <scene>/split.json: train + test buckets (id, sideways, opposite)
+  downscale_factor: 2         # 2700x1800 captures -> ~1370x900, MipNeRF360's outdoor images_4 size

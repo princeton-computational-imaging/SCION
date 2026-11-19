@@ -1,0 +1,8 @@
+# @package _global_
+# Capacity sweep: K=1024, S_init=4. Lifts max_candidates above the
+# codebook.yaml default of 512.
+method:
+  model:
+    num_candidates: 1024
+    max_candidates: 1024
+    initial_splats_per_candidate: 4

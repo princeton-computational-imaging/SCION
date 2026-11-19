@@ -1,0 +1,8 @@
+# @package _global_
+# Ablation B: + instance DC (default) — still no LPIPS, no adversarial.
+defaults:
+  - override /discriminator: "off"
+
+method:
+  model:
+    lpips_lambda: 0.0

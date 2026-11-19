@@ -1,0 +1,7 @@
+# Inherits all defaults from default.yaml, only overrides what differs
+defaults:
+  - default
+
+enabled: false
+loss_weight: 0.0
+warmup_step: 0

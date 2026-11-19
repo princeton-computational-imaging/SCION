@@ -1,0 +1,6 @@
+# @package _global_
+# No instance-level density control (no clone / subdivide / cull).
+# The full-method control is the plain run (no ablation).
+method:
+  model:
+    instance_strategy: none

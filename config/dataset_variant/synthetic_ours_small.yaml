@@ -1,0 +1,5 @@
+# @package method
+# Synthetic-NeRF x ours_small: K = 64 (half of ours_small's 128). Selected
+# automatically by config.yaml's `dataset_variant: ${dataset}_${variant}`.
+model:
+  num_candidates: 64

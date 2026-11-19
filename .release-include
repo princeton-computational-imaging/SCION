@@ -1,0 +1,33 @@
+# Allow-list for the public squashed copy: git pathspecs, one per line.
+# Lines starting with '#' and blank lines are ignored. List the exported files with:
+#
+#   grep -v -e '^#' -e '^$' .release-include | tr '\n' '\0' | xargs -0 git ls-files --
+#
+# tests/test_no_internal_paths.py scans exactly this file set.
+
+# Shipped
+.github/
+.gitignore
+.release-include
+CITATION.cff
+CONTRIBUTING.md
+LICENSE
+Makefile
+README.md
+THIRD_PARTY_NOTICES.md
+reproduce.env.example
+config/
+docs/
+evals/
+experiments/
+scion-cuda/
+scion/
+pixi.lock
+pyproject.toml
+scripts/
+tests/
+train.py
+
+# Internal: never exported
+:(exclude,glob)**/CLAUDE.md
+:(exclude,glob).github/workflows/claude*.yml

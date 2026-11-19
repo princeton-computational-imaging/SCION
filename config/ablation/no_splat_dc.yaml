@@ -1,0 +1,6 @@
+# @package _global_
+# No splat-level density control (no MH births / relocation).
+# The full-method control is the plain run (no ablation).
+method:
+  model:
+    splat_strategy: none

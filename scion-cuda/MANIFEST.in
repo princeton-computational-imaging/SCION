@@ -1,0 +1,4 @@
+# The CUDA extension sources must travel with the sdist or it is unbuildable.
+recursive-include src *.cpp *.cu *.cuh
+include README.md
+include LICENSE

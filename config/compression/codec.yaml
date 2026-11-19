@@ -1,0 +1,17 @@
+# Compression level `codec` (default): `quantized` + OMG-style post-hoc
+# coding, see scion/compression/omg_posthoc.py. Every key except
+# `level` is an EncodeOptions field. Needs the MPEG G-PCC `tmc3` binary
+# (bash scripts/setup/build_tmc13.sh, or TMC13_BINARY=/path/to/tmc3);
+# select `compression=quantized` to skip this level.
+level: codec
+M: 3                      # SVQ sub-vectors per splat-attribute row
+B: 256                    # SVQ codewords per sub-vector
+min_rows_for_svq: 64      # tensors with fewer rows pass through
+pos_bits: 16              # position_format=fp16 only
+seed: 0                   # k-means seed; encoding is deterministic
+lzma_wrap: true
+position_format: tmc13    # MPEG G-PCC positions (fp16 = pure-Python Morton + delta)
+tmc13_quant_step: 1.0e-3  # G-PCC grid spacing, world units
+svq_instance_attrs: true  # also SVQ the per-instance quaternions
+instance_svq_M: 4
+instance_svq_B: 256

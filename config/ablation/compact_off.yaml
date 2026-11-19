@@ -1,0 +1,6 @@
+# @package _global_
+# No within-candidate compactness regularization.
+# The full-method control is the plain run (no ablation).
+method:
+  model:
+    compactness_reg_weight: 0.0

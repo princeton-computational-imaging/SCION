@@ -1,0 +1,4 @@
+# @package _global_
+# Ablation C: + LPIPS — adversarial discriminator still off.
+defaults:
+  - override /discriminator: "off"

@@ -1,0 +1,13 @@
+model:
+  instance_refine_start: 1060
+  instance_refine_every: 100
+  instance_refine_stop: 25000
+
+  # Grow/prune thresholds. grow_scale=1.0 lets DefaultInstanceStrategy's
+  # clone branch fire; 0.5 blocks cloning.
+  default_inst_prune_opa: 1.0e-3
+  # Mean screen-space gradient above which an instance is cloned.
+  default_inst_grow_grad: 1.0e-4
+  default_inst_grow_scale: 1.0
+  default_inst_enable_clone: true
+  default_inst_enable_subdivide: true

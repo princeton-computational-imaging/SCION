@@ -1,0 +1,22 @@
+# @package _global_
+# MipNeRF360 — 9 scenes (5 outdoor, 4 indoor).
+trainer:
+  max_num_iterations: 30000
+
+# Canonical 3DGS protocol: every 8th frame held out for eval, images_4
+# for the outdoor scenes and images_2 for the indoor ones, as used by every
+# baseline quoted in evals/baselines/baselines.yaml.
+dataparser:
+  eval_mode: interval
+  eval_interval: 8
+  downscale_factor: ${oc.select:dataparser.downscale_by_scene.${scene},null}
+  downscale_by_scene:
+    bicycle: 4
+    flowers: 4
+    garden: 4
+    stump: 4
+    treehill: 4
+    room: 2
+    counter: 2
+    kitchen: 2
+    bonsai: 2

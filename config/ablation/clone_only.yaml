@@ -1,0 +1,6 @@
+# @package _global_
+# Instance growth by cloning only (subdivision off; culling kept).
+# The full-method control is the plain run (no ablation).
+method:
+  model:
+    default_inst_enable_subdivide: false

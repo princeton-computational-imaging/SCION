@@ -1,0 +1,18 @@
+# @package _global_
+# Deep Blending — drjohnson, playroom (2 scenes from the canonical INRIA
+# T&T+DB bundle, scripts/download_data.sh tandt).  Same camera-radius regime
+# as Tanks & Temples (~1.18×), but world-space LRs need to be ~5× higher
+# than the bike/lego unified base.
+trainer:
+  max_num_iterations: 30000
+method:
+  optimizer:
+    splat_means: 2.5e-4         # 5× the canonical 5e-5 base; ×1.18 auto → 2.95e-4 effective
+    instance_positions: 3.5e-4  # 5× the canonical 7e-5 base; ×1.18 auto → 4.13e-4 effective
+
+# Every 8th frame held out (3DGS protocol). Full-resolution images
+# (1332x876 / 1264x832).
+dataparser:
+  eval_mode: interval
+  eval_interval: 8
+  downscale_factor: 1

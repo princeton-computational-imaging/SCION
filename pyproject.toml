@@ -1,0 +1,145 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "scion"
+version = "0.2.0a0"
+description = "Codebook-compressed 3D Gaussian splatting: a flat codebook of reusable Gaussian primitives with hard per-instance assignments"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
+authors = [
+  { name = "William Koch" },
+  { name = "Amogh Joshi" },
+  { name = "Cyrus Vachha" },
+  { name = "Cheng Zheng" },
+  { name = "Felix Heide" },
+]
+keywords = [
+  "gaussian-splatting",
+  "3d-reconstruction",
+  "neural-rendering",
+  "compression",
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "License :: OSI Approved :: Apache Software License",
+  "Intended Audience :: Science/Research",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Topic :: Scientific/Engineering :: Image Processing",
+]
+# Version floors reflect the validated stack (torch 2.8.0+cu128,
+# gsplat 1.5.3); older versions may work but are untested.
+dependencies = [
+  "torch>=2.1",
+  "gsplat>=1.3",
+  "numpy",
+  "scipy",
+  "plyfile",
+  "pillow",
+  "tqdm",
+  "hydra-core>=1.3",
+  "omegaconf>=2.3",
+  "lpips",
+  "torchvision",
+  "transformers",
+  "scikit-learn",
+  "faiss-cpu",
+  "constriction",
+  "wandb",  # trainer.vis=wandb (opt-in)
+  "pytorch-msssim",
+  "matplotlib",
+  "pandas",
+  "torchmetrics",
+  "timm",
+  "pyyaml",
+  "tensorboard",  # trainer.vis default
+  "ftfy",  # DINOtxt tokenizer (scripts/animate_codebook.py)
+]
+
+[project.optional-dependencies]
+# GPU k-means for codebook init (the default faiss-cpu works too). The CUDA/Triton
+# kernel extension is a separate, unpublished distribution: `pip install -e scion-cuda/`.
+faiss-gpu = ["faiss-gpu"]
+dev = ["pytest", "pytest-xdist", "build"]
+# Video export for scripts/animate_codebook.py.
+viz = ["imageio", "mediapy"]
+# Live browser viewer during training (trainer.vis=viewer).
+viewer = ["nerfview==0.0.3", "viser==0.2.7"]
+
+[project.urls]
+Homepage = "https://princeton-computational-imaging.github.io/SCION/"
+Repository = "https://github.com/princeton-computational-imaging/SCION"
+Issues = "https://github.com/princeton-computational-imaging/SCION/issues"
+
+[project.scripts]
+scion-train   = "scion.cli:train_main"
+scion-eval    = "scion.cli:eval_main"
+scion-render  = "scion.cli:render_main"
+
+# NOTE: the Hydra config tree (config/) lives at the repo root and is
+# resolved relative to the source checkout; the supported install modes are
+# editable (`pip install -e .`) or running from a clone. A non-editable
+# wheel imports fine but the training CLI needs the config tree (it raises
+# a clear error pointing here).
+[tool.setuptools.packages.find]
+include = ["scion", "scion.*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# tests/bench/ holds microbenchmarks, not tests; run explicitly via
+# `pytest tests/bench`.
+addopts = "--ignore=tests/bench"
+markers = [
+  "gpu: requires a CUDA device (deselect with -m 'not gpu')",
+  "bench: microbenchmark, excluded from default runs",
+  "slow: long-running test",
+]
+
+# Reference environment (https://pixi.sh): `pixi install` sets up Python,
+# PyTorch 2.8 + CUDA 12.8, the nvcc / g++ / cmake that gsplat, scion-cuda and
+# tmc3 compile with, and this checkout (editable). pixi.lock pins every version.
+[tool.pixi.workspace]
+channels = ["conda-forge"]
+platforms = ["linux-64"]
+
+[tool.pixi.system-requirements]
+cuda = "12.8"  # NVIDIA driver must support CUDA 12.8
+
+[tool.pixi.dependencies]
+python = "3.10.*"
+cuda-version = "12.8.*"  # the toolkit torch 2.8.0 is built with; pins the CUDA packages below
+cuda-nvcc = "*"
+cuda-cudart-dev = "*"
+cuda-cccl = "*"
+libcublas-dev = "*"
+libcusparse-dev = "*"
+libcusolver-dev = "*"
+cxx-compiler = "*"
+cmake = "*"
+ninja = "*"
+# Synthetic-NeRF seed points (scion.data.synthetic) and scripts/colmap_scene.sh.
+colmap = ">=3.13.0,<4"
+
+[tool.pixi.activation.env]
+# cuda-nvcc's activation would target every GPU down to sm_50, which gsplat cannot
+# build for. Empty: gsplat compiles for the local GPU, scion-cuda for its own list.
+TORCH_CUDA_ARCH_LIST = ""
+# conda-forge keeps the CUDA headers / libs here; torch's JIT builds (gsplat) look in $CUDA_HOME/include.
+CPATH = "$CONDA_PREFIX/targets/x86_64-linux/include"
+LIBRARY_PATH = "$CONDA_PREFIX/targets/x86_64-linux/lib"
+
+[tool.pixi.pypi-dependencies]
+torch = "==2.8.0"  # PyPI's Linux wheel is the CUDA 12.8 build
+torchvision = "==0.23.0"
+gsplat = "==1.5.3"
+scion = { path = ".", editable = true, extras = ["dev", "viewer"] }
+scion-cuda = { path = "scion-cuda", editable = true }
+
+[tool.pixi.pypi-options]
+no-build-isolation = ["scion-cuda"]  # builds against the torch above
+
+[tool.pixi.tasks]
+tmc3 = "bash scripts/setup/build_tmc13.sh"

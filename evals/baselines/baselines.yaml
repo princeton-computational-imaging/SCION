@@ -1,0 +1,344 @@
+# Baseline numbers printed next to SCION in the paper tables. Quoted unless
+# the source says "author rerun". Read by experiments/paper/common.py:Baselines.
+#
+#   <key>:                        # referenced from experiments/paper/targets.yaml
+#     label: <row label>          # optional, default = key
+#     source: <citation>          # paper + table, or "author rerun, ...; run settings: <code>@<sha>, <knob>=<value>, split=<...>"
+#     size_unit: MiB | MB_1e6     # the source's size convention; converted to MiB (2^20 B) in code
+#     required: false             # optional: gaps render as --- with a warning instead of failing
+#     datasets:
+#       <dataset>:                # ~ = the source reports nothing for this dataset
+#         _dataset_mean: {psnr, ssim, lpips, mb}   # the dataset mean as printed by the source
+#         <scene>: {psnr, ssim, lpips, mb}          # per-scene numbers (per-scene tables)
+#         <scene>: {mb, <group>: {psnr, ssim, lpips}} # per eval group (campus ID/OOD table)
+#
+# A value may be [mean, std]: an author rerun over seeds, printed as mean +/- std.
+#
+# A value of ~ means "not reported by the source" and renders as ---. A
+# missing key or source, or a TODO value or size_unit, is a gap: it fails
+# any required cell (a TODO inside the `source` prose is not a gap). Tables
+# use `_dataset_mean` for dataset cells and the per-scene rows for per-scene
+# cells; nothing is averaged here.
+#
+# Protocols: these sources use the canonical splits (MipNeRF-360 every 8th
+# frame held out; T&T / DB as in 3DGS; Synthetic-NeRF fixed test split).
+
+# --------------------------------------------------------------- Table 1
+
+3DGS:
+  source: >-
+    Dataset means: Chen et al., HAC++ (arXiv:2501.12255) Tab. II, 3DGS row. Per-scene: Kheradmand
+    et al., 3DGS as MCMC (arXiv:2404.09591v3) Tab. 5, "3DGS (SfM)" column (MipNeRF360, T&T, DB) and
+    "3DGS (Random)" column (Synthetic-NeRF, which has no SfM points).
+  size_unit: MiB   # as printed in HAC++ Tab. II ("sizes are measured in MB"; HAC++ code uses 2^20, train.py bit2MB_scale)
+  datasets:
+    mipnerf360:
+      _dataset_mean: {psnr: 27.46, ssim: 0.812, lpips: 0.222, mb: 750.9}
+      bicycle: {psnr: 25.64, ssim: 0.78, lpips: 0.23, mb: ~}
+      bonsai:  {psnr: 32.32, ssim: 0.95, lpips: 0.24, mb: ~}
+      counter: {psnr: 29.12, ssim: 0.91, lpips: 0.24, mb: ~}
+      flowers: ~
+      garden:  {psnr: 27.73, ssim: 0.87, lpips: 0.12, mb: ~}
+      kitchen: {psnr: 31.58, ssim: 0.93, lpips: 0.14, mb: ~}
+      room:    {psnr: 31.70, ssim: 0.93, lpips: 0.27, mb: ~}
+      stump:   {psnr: 26.99, ssim: 0.78, lpips: 0.24, mb: ~}
+      treehill: ~
+    tandt:
+      _dataset_mean: {psnr: 23.69, ssim: 0.844, lpips: 0.178, mb: 431.0}
+      train: {psnr: 21.94, ssim: 0.81, lpips: 0.25, mb: ~}
+      truck: {psnr: 25.40, ssim: 0.88, lpips: 0.18, mb: ~}
+    deepblending:
+      _dataset_mean: {psnr: 29.42, ssim: 0.899, lpips: 0.247, mb: 663.9}
+      drjohnson: {psnr: 29.14, ssim: 0.90, lpips: 0.33, mb: ~}
+      playroom:  {psnr: 30.15, ssim: 0.90, lpips: 0.32, mb: ~}
+    synthetic:
+      _dataset_mean: {psnr: 33.80, ssim: 0.970, lpips: 0.031, mb: 68.46}
+      chair:     {psnr: 36.17, ssim: 0.99, lpips: 0.02, mb: ~}
+      drums:     {psnr: 26.22, ssim: 0.95, lpips: 0.04, mb: ~}
+      ficus:     {psnr: 35.01, ssim: 0.99, lpips: 0.01, mb: ~}
+      hotdog:    {psnr: 37.83, ssim: 0.99, lpips: 0.03, mb: ~}
+      lego:      {psnr: 35.84, ssim: 0.98, lpips: 0.02, mb: ~}
+      materials: {psnr: 30.00, ssim: 0.96, lpips: 0.04, mb: ~}
+      mic:       {psnr: 35.35, ssim: 0.99, lpips: 0.01, mb: ~}
+      ship:      {psnr: 30.93, ssim: 0.90, lpips: 0.13, mb: ~}
+
+MCMC-3DGS:
+  source: >-
+    Kheradmand et al., 3DGS as MCMC (arXiv:2404.09591v3). Dataset means: Tab. 1, "Ours (SfM)" row
+    (Synthetic-NeRF only exists for random init, so not shown). Per-scene: Tab. 5, "Ours (SfM)"
+    column (MipNeRF360, T&T, DB) and "Ours (Random)" column (Synthetic-NeRF). Not a compression
+    method: no size reported.
+  size_unit: MiB   # unused: no sizes
+  datasets:
+    mipnerf360:
+      _dataset_mean: {psnr: 29.89, ssim: 0.90, lpips: 0.19, mb: ~}
+      bicycle: {psnr: 26.15, ssim: 0.81, lpips: 0.18, mb: ~}
+      bonsai:  {psnr: 32.88, ssim: 0.95, lpips: 0.22, mb: ~}
+      counter: {psnr: 29.51, ssim: 0.92, lpips: 0.22, mb: ~}
+      flowers: ~
+      garden:  {psnr: 28.16, ssim: 0.89, lpips: 0.10, mb: ~}
+      kitchen: {psnr: 32.27, ssim: 0.94, lpips: 0.14, mb: ~}
+      room:    {psnr: 32.48, ssim: 0.94, lpips: 0.25, mb: ~}
+      stump:   {psnr: 27.80, ssim: 0.82, lpips: 0.19, mb: ~}
+      treehill: ~
+    tandt:
+      _dataset_mean: {psnr: 24.29, ssim: 0.86, lpips: 0.19, mb: ~}
+      train: {psnr: 22.47, ssim: 0.83, lpips: 0.24, mb: ~}
+      truck: {psnr: 26.11, ssim: 0.89, lpips: 0.14, mb: ~}
+    deepblending:
+      _dataset_mean: {psnr: 29.67, ssim: 0.89, lpips: 0.32, mb: ~}
+      drjohnson: {psnr: 29.00, ssim: 0.89, lpips: 0.33, mb: ~}
+      playroom:  {psnr: 30.33, ssim: 0.90, lpips: 0.31, mb: ~}
+    synthetic:
+      _dataset_mean: ~
+      chair:     {psnr: 36.51, ssim: 0.99, lpips: 0.02, mb: ~}
+      drums:     {psnr: 26.29, ssim: 0.95, lpips: 0.04, mb: ~}
+      ficus:     {psnr: 35.07, ssim: 0.99, lpips: 0.01, mb: ~}
+      hotdog:    {psnr: 37.82, ssim: 0.99, lpips: 0.02, mb: ~}
+      lego:      {psnr: 36.01, ssim: 0.98, lpips: 0.02, mb: ~}
+      materials: {psnr: 30.59, ssim: 0.96, lpips: 0.04, mb: ~}
+      mic:       {psnr: 37.29, ssim: 0.99, lpips: 0.01, mb: ~}
+      ship:      {psnr: 30.82, ssim: 0.91, lpips: 0.12, mb: ~}
+
+# Rows below: HAC++ (arXiv:2501.12255) Tab. II, which prints every size in MB
+# and measures its own models with 2^20 (train.py bit2MB_scale = 8*1024*1024).
+# Rows it re-reports from other papers are taken as printed there.
+
+Scaffold-GS:
+  source: Lu et al., Scaffold-GS (CVPR 2024), as re-reported in HAC++ (arXiv:2501.12255) Tab. II.
+  size_unit: MiB   # as printed in HAC++ Tab. II
+  datasets:
+    mipnerf360:   {_dataset_mean: {psnr: 27.50, ssim: 0.806, lpips: 0.252, mb: 253.9}}
+    tandt:        {_dataset_mean: {psnr: 23.96, ssim: 0.853, lpips: 0.177, mb: 86.50}}
+    deepblending: {_dataset_mean: {psnr: 30.21, ssim: 0.906, lpips: 0.254, mb: 66.00}}
+    synthetic:    {_dataset_mean: {psnr: 33.41, ssim: 0.966, lpips: 0.035, mb: 19.36}}
+
+Compact3DGS:
+  source: Lee et al., Compact 3D Gaussian Representation (CVPR 2024), HAC++ Tab. II "Lee et al." row.
+  size_unit: MiB   # as printed in HAC++ Tab. II
+  datasets:
+    mipnerf360:   {_dataset_mean: {psnr: 27.08, ssim: 0.798, lpips: 0.247, mb: 48.80}}
+    tandt:        {_dataset_mean: {psnr: 23.32, ssim: 0.831, lpips: 0.201, mb: 39.43}}
+    deepblending: {_dataset_mean: {psnr: 29.79, ssim: 0.901, lpips: 0.258, mb: 43.21}}
+    synthetic:    {_dataset_mean: {psnr: 33.33, ssim: 0.968, lpips: 0.034, mb: 5.54}}
+
+Compressed3DGS:
+  source: Niedermayr et al., Compressed 3DGS (CVPR 2024), HAC++ Tab. II "Compressed3D" row.
+  size_unit: MiB   # as printed in HAC++ Tab. II
+  datasets:
+    mipnerf360:   {_dataset_mean: {psnr: 26.98, ssim: 0.801, lpips: 0.238, mb: 28.80}}
+    tandt:        {_dataset_mean: {psnr: 23.32, ssim: 0.832, lpips: 0.194, mb: 17.28}}
+    deepblending: {_dataset_mean: {psnr: 29.38, ssim: 0.898, lpips: 0.253, mb: 25.30}}
+    synthetic:    {_dataset_mean: {psnr: 32.94, ssim: 0.967, lpips: 0.033, mb: 3.68}}
+
+LightGaussian:
+  source: Fan et al., LightGaussian (NeurIPS 2024), HAC++ Tab. II row.
+  size_unit: MiB   # as printed in HAC++ Tab. II
+  datasets:
+    mipnerf360:   {_dataset_mean: {psnr: 27.00, ssim: 0.799, lpips: 0.249, mb: 44.54}}
+    tandt:        {_dataset_mean: {psnr: 22.83, ssim: 0.822, lpips: 0.242, mb: 22.43}}
+    deepblending: {_dataset_mean: {psnr: 27.01, ssim: 0.872, lpips: 0.308, mb: 33.94}}
+    synthetic:    {_dataset_mean: {psnr: 32.73, ssim: 0.965, lpips: 0.037, mb: 7.84}}
+
+SOGS:
+  source: Morgenstern et al., Self-Organizing Gaussian Grids (ECCV 2024), HAC++ Tab. II "SOG" row.
+  size_unit: MiB   # as printed in HAC++ Tab. II
+  datasets:
+    mipnerf360:   {_dataset_mean: {psnr: 26.56, ssim: 0.791, lpips: 0.241, mb: 16.70}}
+    tandt:        {_dataset_mean: {psnr: 23.15, ssim: 0.828, lpips: 0.198, mb: 9.30}}
+    deepblending: {_dataset_mean: {psnr: 29.12, ssim: 0.892, lpips: 0.270, mb: 5.70}}
+    synthetic:    {_dataset_mean: {psnr: 31.37, ssim: 0.959, lpips: 0.043, mb: 2.00}}
+
+ContextGS (low-rate):
+  source: >-
+    Wang et al., ContextGS (NeurIPS 2024), HAC++ Tab. II "ContextGS (lowrate)" row, except
+    Synthetic-NeRF: author rerun started from our COLMAP points (scion.data.synthetic, copied to
+    points3d.ply) instead of random points (paper: 32.79 / 0.965 / 0.040 / 1.01; our random-start
+    rerun: 32.79 / 0.965 / 0.040 / 1.02); run settings: wyf0912/ContextGS@eff8d19 + Blender loader
+    np.byte -> np.uint8 and decoder fixes, run_shell_blender.py lowest rate lmbda=0.004,
+    voxel_size=0.001, update_init_factor=4, 30k iterations, one run per scene, split=test.
+  size_unit: MiB   # as printed in HAC++ Tab. II; the rerun's train.py also uses bit2MB_scale = 8*1024*1024
+  datasets:
+    mipnerf360:   {_dataset_mean: {psnr: 27.62, ssim: 0.808, lpips: 0.237, mb: 12.68}}
+    tandt:        {_dataset_mean: {psnr: 24.20, ssim: 0.852, lpips: 0.184, mb: 7.05}}
+    deepblending: {_dataset_mean: {psnr: 30.11, ssim: 0.907, lpips: 0.265, mb: 3.45}}
+    synthetic:
+      _dataset_mean: {psnr: 32.90, ssim: 0.965, lpips: 0.039, mb: 0.91}
+      chair:     {psnr: 34.17, ssim: 0.981, lpips: 0.018, mb: 0.88}
+      drums:     {psnr: 26.25, ssim: 0.951, lpips: 0.044, mb: 1.18}
+      ficus:     {psnr: 34.76, ssim: 0.984, lpips: 0.015, mb: 0.77}
+      hotdog:    {psnr: 36.47, ssim: 0.979, lpips: 0.033, mb: 0.58}
+      lego:      {psnr: 34.39, ssim: 0.976, lpips: 0.027, mb: 1.00}
+      materials: {psnr: 30.32, ssim: 0.960, lpips: 0.043, mb: 1.01}
+      mic:       {psnr: 35.50, ssim: 0.989, lpips: 0.011, mb: 0.59}
+      ship:      {psnr: 31.31, ssim: 0.902, lpips: 0.122, mb: 1.25}
+
+ContextGS (high-rate):
+  source: Wang et al., ContextGS (NeurIPS 2024), HAC++ Tab. II "ContextGS (highrate)" row.
+  size_unit: MiB   # as printed in HAC++ Tab. II
+  datasets:
+    mipnerf360:   {_dataset_mean: {psnr: 27.75, ssim: 0.811, lpips: 0.231, mb: 18.41}}
+    tandt:        {_dataset_mean: {psnr: 24.29, ssim: 0.855, lpips: 0.176, mb: 11.80}}
+    deepblending: {_dataset_mean: {psnr: 30.39, ssim: 0.909, lpips: 0.258, mb: 6.60}}
+    synthetic:    {_dataset_mean: {psnr: 33.51, ssim: 0.968, lpips: 0.035, mb: 1.56}}
+
+CompGS (low-rate):
+  source: Liu et al., CompGS (ACM MM 2024), HAC++ Tab. II "CompGS (lowrate)" row (no Synthetic-NeRF).
+  size_unit: MiB   # as printed in HAC++ Tab. II
+  datasets:
+    mipnerf360:   {_dataset_mean: {psnr: 26.37, ssim: 0.778, lpips: 0.276, mb: 8.83}}
+    tandt:        {_dataset_mean: {psnr: 23.11, ssim: 0.815, lpips: 0.236, mb: 5.89}}
+    deepblending: {_dataset_mean: {psnr: 29.30, ssim: 0.895, lpips: 0.293, mb: 6.03}}
+    synthetic:    ~
+
+CompGS (high-rate):
+  source: Liu et al., CompGS (ACM MM 2024), HAC++ Tab. II "CompGS (highrate)" row (no Synthetic-NeRF).
+  size_unit: MiB   # as printed in HAC++ Tab. II
+  datasets:
+    mipnerf360:   {_dataset_mean: {psnr: 27.26, ssim: 0.803, lpips: 0.239, mb: 16.50}}
+    tandt:        {_dataset_mean: {psnr: 23.70, ssim: 0.837, lpips: 0.208, mb: 9.60}}
+    deepblending: {_dataset_mean: {psnr: 29.69, ssim: 0.901, lpips: 0.279, mb: 8.77}}
+    synthetic:    ~
+
+HAC++ (low-rate):
+  source: >-
+    Chen et al., HAC++ (arXiv:2501.12255) Tab. II "Ours HAC++ (lowrate)" row, except
+    Synthetic-NeRF: author rerun started from our COLMAP points (scion.data.synthetic, copied to
+    points3d.ply) instead of random points (paper: 33.03 / 0.966 / 0.039 / 0.88; our random-start
+    rerun: 32.98 / 0.966 / 0.039 / 0.89); run settings: YihangChen-ee/HAC-plus@46e3c4f + Blender
+    loader np.byte -> np.uint8, run_shell_blender.py lowest rate lmbda=0.003,
+    mask_lr_final=0.00024, voxel_size=0.001, update_init_factor=4, 30k iterations, one run per
+    scene, split=test.
+  size_unit: MiB   # HAC++ train.py: bit2MB_scale = 8*1024*1024
+  datasets:
+    mipnerf360:   {_dataset_mean: {psnr: 27.60, ssim: 0.803, lpips: 0.253, mb: 8.34}}
+    tandt:        {_dataset_mean: {psnr: 24.22, ssim: 0.849, lpips: 0.190, mb: 5.18}}
+    deepblending: {_dataset_mean: {psnr: 30.16, ssim: 0.907, lpips: 0.266, mb: 2.91}}
+    synthetic:
+      _dataset_mean: {psnr: 33.14, ssim: 0.967, lpips: 0.038, mb: 0.82}
+      chair:     {psnr: 34.26, ssim: 0.982, lpips: 0.019, mb: 0.69}
+      drums:     {psnr: 26.42, ssim: 0.952, lpips: 0.041, mb: 1.21}
+      ficus:     {psnr: 35.22, ssim: 0.985, lpips: 0.014, mb: 0.68}
+      hotdog:    {psnr: 36.87, ssim: 0.980, lpips: 0.032, mb: 0.49}
+      lego:      {psnr: 34.68, ssim: 0.977, lpips: 0.025, mb: 0.81}
+      materials: {psnr: 30.53, ssim: 0.961, lpips: 0.042, mb: 0.95}
+      mic:       {psnr: 35.69, ssim: 0.990, lpips: 0.010, mb: 0.47}
+      ship:      {psnr: 31.46, ssim: 0.905, lpips: 0.122, mb: 1.22}
+
+HAC++ (high-rate):
+  source: Chen et al., HAC++ (arXiv:2501.12255) Tab. II "Ours HAC++ (highrate)" row.
+  size_unit: MiB   # HAC++ train.py: bit2MB_scale = 8*1024*1024
+  datasets:
+    mipnerf360:   {_dataset_mean: {psnr: 27.82, ssim: 0.811, lpips: 0.231, mb: 18.48}}
+    tandt:        {_dataset_mean: {psnr: 24.32, ssim: 0.854, lpips: 0.178, mb: 8.63}}
+    deepblending: {_dataset_mean: {psnr: 30.34, ssim: 0.911, lpips: 0.254, mb: 5.28}}
+    synthetic:    {_dataset_mean: {psnr: 33.76, ssim: 0.969, lpips: 0.033, mb: 1.84}}
+
+# Nexels Tab. 2 "Memory" is a parameter-memory estimate (2 B per hash-grid
+# parameter, 4 B otherwise; Sec. 8.1) printed as rounded MB with no stated
+# divisor, so the size cells stay gaps until the convention is settled.
+
+Nexels:
+  source: Rong et al., Nexels (arXiv:2512.13796) Tab. 2, "Ours" row (400K primitives).
+  size_unit: TODO  # divisor not stated (1e6 vs 2^20); printed 160MB on both datasets
+  required: false
+  datasets:
+    mipnerf360:   {_dataset_mean: {psnr: 27.35, ssim: 0.802, lpips: 0.201, mb: 160}}
+    tandt:        {_dataset_mean: {psnr: 23.55, ssim: 0.841, lpips: 0.155, mb: 160}}
+    deepblending: ~
+    synthetic:    ~
+
+BBSplat:
+  source: Svitov et al., BBSplat (arXiv 2025), as measured in Nexels (arXiv:2512.13796) Tab. 2, "BBSplat" row (400K primitives).
+  size_unit: TODO  # same Nexels Tab. 2 "Memory" convention; printed 260MB on both datasets
+  required: false
+  datasets:
+    mipnerf360:   {_dataset_mean: {psnr: 26.98, ssim: 0.783, lpips: 0.231, mb: 260}}
+    tandt:        {_dataset_mean: {psnr: 23.83, ssim: 0.854, lpips: 0.147, mb: 260}}
+    deepblending: ~
+    synthetic:    ~
+
+# --------------------------------------------------------------- Table 6
+# Author reruns at the lowest operating point near 1.5 MB on MipNeRF360. The
+# values are the ones reported in the submitted paper; the run settings still
+# need recording (a TODO in `source` prose does not block rendering).
+
+ContextGS (matched rerun):
+  label: ContextGS
+  source: "author rerun on the shipped images (images_4 outdoor / images_2 indoor, every 8th held out, no -r), one run per scene, scored with one metric stack (3DGS metrics.py convention, GT checked byte-identical)"
+  settings: "lmbda 12, target_ratio 0.2 (upstream eff8d19); size = bytes of bitstreams/ incl. mlp.pt"
+  size_unit: MiB
+  datasets:
+    mipnerf360: {_dataset_mean: {psnr: 20.38, ssim: 0.549, lpips: 0.540, mb: 1.573}}
+
+HAC++ (matched rerun):
+  label: HAC++
+  source: "author rerun on the shipped images (images_4 outdoor / images_2 indoor, every 8th held out, no -r), one run per scene, scored with one metric stack (3DGS metrics.py convention, GT checked byte-identical)"
+  settings: "lmbda 0.08; size = logged encoded total (bitstreams + MLPs)"
+  size_unit: MiB   # HAC++ train.py: bit2MB_scale = 8*1024*1024
+  datasets:
+    mipnerf360: {_dataset_mean: {psnr: 25.78, ssim: 0.728, lpips: 0.362, mb: 1.634}}
+
+OMG (matched rerun):
+  label: OMG
+  source: "author rerun on the shipped images (images_4 outdoor / images_2 indoor, every 8th held out, no -r), one run per scene, scored with one metric stack (3DGS metrics.py convention, GT checked byte-identical)"
+  settings: "importance_thresh 0.75; OMG_GPCC_CABAC_BYPASS_STREAM=0 on 7 scenes (upstream flag crashes the tmc3 decoder; same decoded geometry)"
+  size_unit: MiB   # OMG train.py: os.path.getsize(comp.xz) / 2**20
+  datasets:
+    mipnerf360: {_dataset_mean: {psnr: 25.89, ssim: 0.755, lpips: 0.322, mb: 1.467}}
+
+# --------------------------------------------------------------- tab:ood (campus ID/OOD)
+
+OMG (campus rerun):
+  label: OMG (0.35)
+  source: "author rerun on the campus scenes (images_2; split.json train images and test groups passed as a custom_split.json per scene), seeds 0-2, scored with one metric stack (3DGS metrics.py convention, GT checked byte-identical); mean +/- sample std over seeds"
+  settings: "--imp_metric outdoor --importance_thresh 0.35, OMG_GPCC_CABAC_BYPASS_STREAM=0; the smallest OMG rate at or above our mean size on both scenes; size = comp.xz"
+  size_unit: MiB   # OMG train.py: os.path.getsize(comp.xz) / 2**20
+  datasets:
+    campus:
+      mather_sundial:
+        mb: [0.258, 0.003]
+        id:       {psnr: [17.94, 0.17], ssim: [0.428, 0.002], lpips: [0.558, 0.002]}
+        sideways: {psnr: [16.85, 0.03], ssim: [0.417, 0.001], lpips: [0.565, 0.002]}
+        opposite: {psnr: [14.38, 0.04], ssim: [0.306, 0.002], lpips: [0.684, 0.002]}
+      mccosh_walkway:
+        mb: [0.250, 0.001]
+        id:       {psnr: [15.54, 0.18], ssim: [0.450, 0.004], lpips: [0.613, 0.004]}
+        sideways: {psnr: [15.57, 0.34], ssim: [0.411, 0.011], lpips: [0.658, 0.005]}
+        opposite: {psnr: [13.24, 0.11], ssim: [0.347, 0.008], lpips: [0.676, 0.002]}
+
+HAC++ (campus rerun):
+  label: HAC++ (1.0)
+  source: "author rerun on the campus scenes (images_2; split.json train images and test groups passed as a custom_split.json per scene), seeds 0-2, scored with one metric stack (3DGS metrics.py convention, GT checked byte-identical); mean +/- sample std over seeds"
+  settings: "--lod 0 --voxel_size 0.001 --update_init_factor 16 --iterations 30000 --lmbda 1.0 --mask_lr_final 0.0015 (its smallest size); local patch to read custom_split.json; size = logged encoded total (bitstreams + MLPs)"
+  size_unit: MiB   # HAC++ train.py: bit2MB_scale = 8*1024*1024
+  datasets:
+    campus:
+      mather_sundial:
+        mb: [0.530, 0.017]
+        id:       {psnr: [18.71, 0.05], ssim: [0.469, 0.001], lpips: [0.536, 0.002]}
+        sideways: {psnr: [17.43, 0.14], ssim: [0.458, 0.002], lpips: [0.532, 0.002]}
+        opposite: {psnr: [15.24, 0.05], ssim: [0.341, 0.001], lpips: [0.643, 0.001]}
+      mccosh_walkway:
+        mb: [0.431, 0.014]
+        id:       {psnr: [16.61, 0.13], ssim: [0.468, 0.005], lpips: [0.601, 0.004]}
+        sideways: {psnr: [17.10, 0.16], ssim: [0.447, 0.006], lpips: [0.635, 0.001]}
+        opposite: {psnr: [14.99, 0.06], ssim: [0.402, 0.003], lpips: [0.654, 0.002]}
+
+ContextGS (campus rerun):
+  label: ContextGS (40)
+  source: "author rerun on the campus scenes (images_2; split.json train images and test groups passed as a custom_split.json per scene), seeds 0-2, scored with one metric stack (3DGS metrics.py convention, GT checked byte-identical); mean +/- sample std over seeds"
+  settings: "--lod 0 --voxel_size 0.001 --update_init_factor 16 --iterations 30000 --lmbda 40 --target_ratio 0.2 (its smallest size); local patches to read custom_split.json and fix the decoder (`if N_valid % MAX_batch`, upstream `//` crashes below 10k anchors); size = bytes of bitstreams/ incl. mlp.pt"
+  size_unit: MiB
+  datasets:
+    campus:
+      mather_sundial:
+        mb: [0.352, 0.006]
+        id:       {psnr: [15.80, 0.16], ssim: [0.368, 0.002], lpips: [0.637, 0.001]}
+        sideways: {psnr: [14.69, 0.17], ssim: [0.365, 0.004], lpips: [0.634, 0.003]}
+        opposite: {psnr: [12.15, 0.17], ssim: [0.261, 0.004], lpips: [0.719, 0.005]}
+      mccosh_walkway:
+        mb: [0.394, 0.012]
+        id:       {psnr: [14.51, 0.29], ssim: [0.401, 0.007], lpips: [0.685, 0.003]}
+        sideways: {psnr: [14.55, 0.23], ssim: [0.370, 0.016], lpips: [0.696, 0.016]}
+        opposite: {psnr: [12.77, 0.38], ssim: [0.335, 0.014], lpips: [0.714, 0.008]}

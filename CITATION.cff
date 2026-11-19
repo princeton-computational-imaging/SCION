@@ -1,0 +1,47 @@
+cff-version: 1.2.0
+message: >-
+  If you use this software, please cite the SCION paper (preferred-citation
+  below).
+title: "SCION: Scene Composition with Instanced Neural Primitives"
+type: software
+authors:
+  - family-names: Koch
+    given-names: William
+  - family-names: Joshi
+    given-names: Amogh
+  - family-names: Vachha
+    given-names: Cyrus
+  - family-names: Zheng
+    given-names: Cheng
+  - family-names: Heide
+    given-names: Felix
+repository-code: https://github.com/princeton-computational-imaging/SCION
+url: https://princeton-computational-imaging.github.io/SCION/
+license: Apache-2.0
+version: 0.2.0a0
+keywords:
+  - gaussian-splatting
+  - 3d-reconstruction
+  - neural-rendering
+  - compression
+preferred-citation:
+  type: conference-paper
+  title: "SCION: Scene Composition with Instanced Neural Primitives"
+  authors:
+    - family-names: Koch
+      given-names: William
+    - family-names: Joshi
+      given-names: Amogh
+    - family-names: Vachha
+      given-names: Cyrus
+    - family-names: Zheng
+      given-names: Cheng
+    - family-names: Heide
+      given-names: Felix
+  collection-title: Advances in Neural Information Processing Systems (NeurIPS)
+  year: 2026
+  identifiers:
+    - type: other
+      value: "arXiv:2610.02322"
+      description: arXiv preprint
+  url: https://arxiv.org/abs/2610.02322

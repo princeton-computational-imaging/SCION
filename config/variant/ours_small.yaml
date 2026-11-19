@@ -1,0 +1,10 @@
+# @package method
+# Ours-Small variant — half capacity vs ours_large.
+# K = 128 templates (64 on Synthetic-NeRF, config/dataset_variant/).
+model:
+  num_candidates: 128
+  initial_splats_per_candidate: 4
+  max_splats_per_candidate: 128   # canonical
+  # 0.4 x the sparse point cloud (a (0,1] value is a fraction; see
+  # CodebookModelConfig.num_instances).
+  num_instances: 0.4

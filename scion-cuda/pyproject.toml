@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=64", "wheel", "torch>=2.1", "ninja"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "scion-cuda"
+version = "0.2.0a1"
+description = "CUDA kernels for the SCION codebook hot path"
+readme = "README.md"
+license = { text = "Apache-2.0" }
+requires-python = ">=3.10"
+dependencies = [
+  "torch>=2.1",
+]
+
+[project.optional-dependencies]
+triton = ["triton>=2.1"]
+dev = ["pytest", "pytest-benchmark"]
+
+[tool.setuptools.packages.find]
+where = ["python"]
+include = ["scion_cuda", "scion_cuda.*"]

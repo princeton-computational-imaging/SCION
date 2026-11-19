@@ -1,0 +1,10 @@
+# @package _global_
+# Tanks & Temples — train/truck.
+trainer:
+  max_num_iterations: 30000
+
+# Every 8th frame held out (3DGS protocol). Full-resolution images (~980x545).
+dataparser:
+  eval_mode: interval
+  eval_interval: 8
+  downscale_factor: 1

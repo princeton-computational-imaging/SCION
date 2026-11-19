@@ -1,0 +1,73 @@
+# Discriminator settings, chosen by a hyperparameter sweep on bicycle.
+#
+# Load-bearing knobs (re-tune together):
+#   * `use_spectral_norm=false`     — unblocks D's logit magnitude.
+#   * `r1_gamma=0`                  — R1 prevented escape from sep=0; off.
+#   * `gan_loss_type=bce_smooth`
+#     + `label_smoothing=0.1`       — finite saturation target for G so G's
+#                                     gradient stays informative as D wins.
+#   * `update_freq=8, d_steps_per_update=1, lr=1.06e-5`
+#                                   — D learns ~once every eight G steps at
+#                                     a low LR; ADA does the rest.
+#   * `loss_weight=8.6e-3`          — low enough that D doesn't overpower
+#                                     L1+SSIM+LPIPS at sep ≈ 1.5.
+#   * `instance_noise=0.05`         — soft regularizer in lieu of R1.
+#   * `warmup_step=10000`           — defers D enable until G is past the
+#                                     densification ramp.
+#
+# Tightening guidance:
+#   sep > ~1.5 mid-training       → halve `update_freq` (8 → 16) or `lr`.
+#   sep < ~0.4 mid-training       → `update_freq=4` + `lr=2e-5`.
+#   G hallucination dominating    → drop `loss_weight` toward 0.005.
+#   D collapses to sep=0          → verify `r1_gamma=0` and
+#                                    `use_spectral_norm=false`.
+
+enabled: true
+loss_weight: 8.6e-3
+warmup_step: 10000
+lr: 1.06e-5
+beta1: 0.0
+
+# Regularization — both must stay off.  Spectral norm caps D's logit
+# magnitude; R1 pulls gradients toward zero from both sides.  Together
+# they trap D at sep ≈ 0 with `adv_loss ≡ lw·log(2)` (measured).
+use_spectral_norm: false
+
+# Update schedule — D fires every 8th step, single inner step.
+update_freq: 8
+d_steps_per_update: 1
+
+# R1 gradient penalty (lazy).  DISABLED by default — see header.  Enable
+# only if you see D diverging on a higher-capacity config where ADA can't
+# keep up; start at `r1_gamma: 0.05`.
+r1_gamma: 0.0
+r1_every: 16
+
+# Additive Gaussian noise on patches.  Soft regularizer in place of R1.
+instance_noise: 0.05
+
+# Patch sampling — fresh patches each inner step; sized for detail.
+patch_size: 64
+num_patches: 32
+
+# Adaptive Discriminator Augmentation (Karras et al. 2020).  Target 0.8
+# is intentional; with `r1_gamma=0` ADA's the primary regulator.  Slow
+# speed avoids bang-bang.  `ada_max_p=0.9` keeps the ceiling high so the
+# controller never saturates early.
+ada_target: 0.8
+ada_speed: 0.01
+ada_interval: 4
+ada_max_p: 0.9
+
+# GAN loss type: "hinge" | "bce" | "bce_smooth".  `bce_smooth` with
+# `label_smoothing=0.1` gives a finite saturation target at logit ≈ 2.2
+# so G keeps seeing gradient even when D is confident; plain `bce` can
+# saturate G when D wins fast; `hinge` collapses D under any R1.
+gan_loss_type: bce_smooth
+label_smoothing: 0.1
+
+# VGG scales aggregated by the projected discriminator.
+# Indices into [relu1_2, relu2_2, relu3_3, relu4_3].  Two finest scales
+# give D enough receptive field while keeping the task "high-frequency
+# detail" as G sharpens.
+vgg_scales: [0, 1]

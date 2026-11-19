@@ -1,0 +1,18 @@
+# Grass: moderate lateral sway, pivot at cluster base, small splats sway
+# more than large ones.
+bend_axis: world_z
+pivot_mode: base
+per_splat_flutter: true
+size_impact_alpha: 1.0
+size_impact_min: 0.3
+size_impact_max: 3.0
+animation_config:
+  wind_direction: [1.0, 0.0]
+  wind_speed: 0.35
+  wind_strength: 3.0
+  sway_frequency: 0.25
+  phase_fbm_scale: 0.2
+  turbulence_scale: 0.5
+  flutter_amplitude: 2.0
+  flutter_frequency_factor: 3.0
+  freq_jitter: 0.15

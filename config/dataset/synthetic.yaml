@@ -1,0 +1,13 @@
+# @package _global_
+# Synthetic NeRF (Blender) — 8 scenes. Auto-detected dataparser:
+# config._build_dataparser picks BlenderDataParserConfig when
+# transforms_train.json is present in data/{scene}/.
+trainer:
+  max_num_iterations: 30000
+
+method:
+  model:
+    # Synthetic Blender renders are alpha-composited onto white.
+    # The default `random` background trains against noise GT in
+    # transparent regions and produces incorrect floaters.
+    background_color: white

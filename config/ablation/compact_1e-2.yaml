@@ -1,0 +1,6 @@
+# @package _global_
+# Within-candidate compactness regularization at lambda_c = 1e-2 (default 2e-4).
+# The full-method control is the plain run (no ablation).
+method:
+  model:
+    compactness_reg_weight: 1e-2

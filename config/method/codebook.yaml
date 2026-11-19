@@ -1,0 +1,49 @@
+# SCION codebook method: flat codebook with hard assignments, MH splat births
+defaults:
+  - /optimizer: codebook
+  - _self_
+
+model:
+  # Base config shared across datasets: MH splat strategy, default
+  # instance strategy, K=256 templates × 4 initial splats, N=50k instances.
+  # Per-scene LRs are handled by `scene_lr_scale: auto` plus
+  # `dataset=deepblending`.
+  splat_strategy: "mh"
+  instance_strategy: "default"
+  num_candidates: 256
+  max_candidates: 512
+  initial_splats_per_candidate: 4
+  max_splats_per_candidate: 128
+  num_instances: -1  # -1 = full sparse point cloud; (0,1] = fraction of it; >1 = count (upsampled with replacement past the cloud size)
+  max_num_instances: 1000000
+  sh_degree: 0
+
+  lpips_lambda: 0.05
+  lpips_every: 4
+  lpips_net: vgg
+
+  splat_scale_reg: 0.1
+  instance_scale_reg: 0.1
+
+  # Opacity regs were the one-way ratchet that collapsed instance pools
+  # at lower init capacity.
+  # Disabled by default; set per-run if needed.
+  splat_opacity_reg: 0.0
+  instance_opacity_reg: 0.0
+  instance_min_opacity: 5.0e-3
+
+  # DINO feature integration (init-only)
+  init_assignment_mode: dino
+  dino_init_position_weight: 0.0
+  dino_lookup_backend: voxel_hash
+  dino_knn_k: 2
+  dino_voxel_size: 0.0
+  dino_voxel_neighbor_radius: 1
+
+  # Direct DINO init: project initial instance positions straight into the
+  # training views — see DinoFeatureOracle.from_training_views.
+  dino_direct_scene_dir: ${data}
+  dino_direct_model: dinov3_vitl16
+  dino_direct_resolution: 832
+  dino_direct_pca_dim: 64
+  dino_direct_distance_alpha: 0.0  # 0 = uniform per-view weighting

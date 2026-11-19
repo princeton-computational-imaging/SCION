@@ -1,0 +1,24 @@
+# Learning rates for codebook model parameter groups.
+#
+# Base values for `splat_means` and `instance_positions` are shared by
+# bicycle and lego once camera radius is factored out via
+# `scene_lr_scale: auto`. Deep Blending scenes
+# need a higher world-space LR — see `config/dataset/deepblending.yaml`.
+splat_means: 5.0e-5
+splat_features_dc: 0.0025
+splat_opacities: 0.02
+splat_scales: 0.002
+splat_quats: 0.001
+instance_positions: 7.0e-5
+instance_rotations: 7.0e-4
+# Instance scale LR kept below splat_scales (2e-3): a faster rate lets a few
+# instances' log_scale run away (exp ≈ 55×) and dominate the scene as a
+# white blob before the tail-cap regularizer can restrain them.
+instance_scales: 5.0e-4
+instance_opacities: 0.02
+
+# World-space "means" LR multiplier. `auto` derives `1.1 × max(||c_i −
+# mean(c)||)` over training-camera centres (scion/engine/run.py), applied
+# only to `splat_means` and `instance_positions`. Good LRs scale with camera
+# radius almost exactly, so one base serves both bicycle and lego.
+scene_lr_scale: auto

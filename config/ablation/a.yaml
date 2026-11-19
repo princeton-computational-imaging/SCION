@@ -1,0 +1,9 @@
+# @package _global_
+# Ablation A: splat MH only — no instance DC, no LPIPS, no adversarial.
+defaults:
+  - override /discriminator: "off"
+
+method:
+  model:
+    instance_strategy: none
+    lpips_lambda: 0.0
